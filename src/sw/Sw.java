@@ -29,7 +29,7 @@ public class Sw extends PApplet {
 
     // sky
     PVector[] sky;
-    int maxStars = 100;
+    int maxStars = 1000;
 
     void initSky(){
       for(int i = 0; i < sky.length; i++)
@@ -66,7 +66,7 @@ public class Sw extends PApplet {
       pushStyle();
       noStroke();
         for (PVector sky1 : sky) {
-            fill(sky1.z, sky1.z, sky1.z);
+            fill(sky1.z);
             circle(sky1.x, sky1.y, 2);
             //point(sky1.x, sky1.y);
             sky1.z = random(255);

@@ -12,6 +12,7 @@ import processing.core.*;
 /**
  *
  * @author razvanjulianpetrescu
+ * make this class and extend
  */
 public interface movable{
   
