@@ -39,7 +39,7 @@ public class Sw extends PApplet {
     //size
     @Override
     public void settings() {
-        size(400, 400);
+        size(800, 600);
     }
 
     // init
@@ -51,26 +51,28 @@ public class Sw extends PApplet {
       initSky();
     }
 
-    // loop
+    // main loop
     @Override 
     public void draw(){
-      background(255);
+      background(128);
       sky();
       m.move(this);
       m.render(this);
       hud();
     }
 
+    // paint the background
     void sky(){
       pushStyle();
-      for(int i = 0; i < sky.length; i++){
-        fill(sky[i].z);
-        //circle(sky[i].x, sky[i].y, 3);
-        point(sky[i].x, sky[i].y);
-        sky[i].z = random(255);
-        sky[i].x += 1 - random(2);
-        sky[i].x += 1 - random(2);
-      }
+      noStroke();
+        for (PVector sky1 : sky) {
+            fill(sky1.z, sky1.z, sky1.z);
+            circle(sky1.x, sky1.y, 2);
+            //point(sky1.x, sky1.y);
+            sky1.z = random(255);
+            sky1.x += 1 - random(2);
+            sky1.x += 1 - random(2);
+        }
       popStyle();
     }
 
@@ -98,6 +100,4 @@ public class Sw extends PApplet {
         m.decSpeed(10);
     }
     
-    
-    ////
 }
