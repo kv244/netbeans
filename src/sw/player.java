@@ -16,6 +16,7 @@ class player extends movable{
   // TODO: 
   // make smoother rotation
   // add flares
+  // add max speed + speed control
 
   private PImage ptrImage;
   private float currentAngle = 0.0f;

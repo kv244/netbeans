@@ -5,7 +5,22 @@
  */
 package sw;
 
+import java.io.File;
+import java.io.IOException;
 import processing.core.*;
+import javax.sound.midi.*;
+/*
+void setup() {
+  try {
+    File midiFile = new File(dataPath("whatever.mid"));
+    Sequencer sequencer = MidiSystem.getSequencer();
+    sequencer.open();
+    Sequence sequence = MidiSystem.getSequence(midiFile);
+    sequencer.setSequence(sequence);
+    sequencer.start();
+  } catch(Exception e) {}
+}
+*/
 
 // TODO
 // load svg
@@ -25,8 +40,10 @@ public class Sw extends PApplet {
     }
  
     // player
-    movable m;
-    float maxSpeed = 10;
+    private movable m;
+    private final gameState gs = new gameState();
+    private File midiFile = null;
+    private Sequencer sequencer = null;
 
     // mouse
     float mx, my;
@@ -34,35 +51,69 @@ public class Sw extends PApplet {
     // sky
     PVector[] sky;
     int maxStars = 1000;
-
-    void initSky(){
-      for(int i = 0; i < sky.length; i++)
-        sky[i] = new PVector(random(width), random(height), random(255));
-    }
     
+    // intro screen
+    PShape ptrIntro;
+
     //size
     @Override
     public void settings() {
         size(800, 600);
-    }
-
+    }    
+    
     // init
     @Override 
     public void setup(){
-      //m = new machine(5, maxSpeed);
+      
       m = new player(this, 10, "rcket.png");
       sky = new PVector[maxStars];
       initSky();
+      
+      ptrIntro = loadShape("sw.svg");
+      midiFile = new File("sw.mid");
     }
 
     // main loop
     @Override 
     public void draw(){
       background(128);
-      sky(false);
-      m.move(this);
-      m.render(this);
-      hud();
+      
+      switch(gs.getState()){
+          case INIT:
+            renderIntro();
+            break;
+            
+          case RUNNING:
+            sky(false);
+            m.move(this);
+            m.render(this);
+            hud();
+            break;
+            
+          case ENDED:
+              renderIntro();
+              break;
+      }          
+    }
+     
+    // init sky
+    void initSky(){
+      for(int i = 0; i < sky.length; i++)
+        sky[i] = new PVector(random(width), random(height), random(255));
+    }
+
+    // intro
+    void renderIntro(){
+        shape(ptrIntro, 0, 0, width, height);
+        try{
+            sequencer = MidiSystem.getSequencer();
+            sequencer.open();
+            Sequence sequence = MidiSystem.getSequence(midiFile);
+            sequencer.setSequence(sequence);
+            sequencer.start();
+        }catch(IOException | InvalidMidiDataException | MidiUnavailableException x){
+            System.out.println("Error playing sound: " + x.getMessage());
+        }
     }
 
     // paint the background
@@ -71,14 +122,14 @@ public class Sw extends PApplet {
           return;
       pushStyle();
       noStroke();
-        for (PVector sky1 : sky) {
-            fill(sky1.z);
-            circle(sky1.x, sky1.y, 2);
+      for (PVector sky1 : sky) {
+        fill(sky1.z);
+        circle(sky1.x, sky1.y, 2);
             //point(sky1.x, sky1.y);
-            sky1.z = random(255);
-            sky1.x += 1 - random(2);
-            sky1.x += 1 - random(2);
-        }
+        sky1.z = random(255);
+        sky1.x += 1 - random(2);
+        sky1.x += 1 - random(2);
+      }
       popStyle();
     }
 
@@ -92,9 +143,22 @@ public class Sw extends PApplet {
     }
 
     // mouse
+    // TODO finish other states
     @Override
     public void mousePressed(){
-      m.setTo(mouseX, mouseY);
+        
+          switch(gs.getState()){
+            case INIT:
+                if(sequencer != null)
+                    sequencer.stop();
+                gs.nextState();
+                break;
+            case RUNNING:
+                m.setTo(mouseX, mouseY);
+                break;
+            case ENDED:
+                break;
+          }
     }
 
     // keys
