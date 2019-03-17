@@ -11,25 +11,19 @@ import processing.core.*;
  *
  * @author razvanjulianpetrescu
  */
-class player implements movable{
+class player extends movable{
   
+  // TODO: 
   // make smoother rotation
   // add flares
 
-  private float mxSpeed;
   private PImage ptrImage;
-  private float speed = 650;
-  private float px;
-  private float py;
-  private float dx; private float dy; 
-  private float toX; private float toY;
-  float angle = 0.0f;
-  
+  private float currentAngle = 0.0f;
+  private final float rotAngle = (float)Math.PI / 10;
   
   public player(PApplet p, float maxSpeed, String imgPath){
-    mxSpeed = maxSpeed;
-    px = 0; py = 0; toX = 0; toY = 0; dx = 0; dy = 0;
-
+    
+    super(p, maxSpeed);
     
     try{
         
@@ -39,45 +33,37 @@ class player implements movable{
     }
   }
   
-  
+  // also set for movement
   @Override
-    public void decSpeed(float sp){}
-  @Override
-    public void incSpeed(float sp){}
-  
-  @Override
-    public float getSpeed(){
-      return speed;
-    }
-  
-   private void calcDelta(){
-    dx = (toX - px) / speed;
-    dy = (toY - py) / speed;
-   
-    angle = (float) Math.atan2((double)(toY - py), (double)(toX - px));
-  } 
-  
-  @Override
-    public void setTo(float x, float y){
-      toX = x; toY = y;
-      calcDelta();
+    public void move(PApplet p){
+        //System.out.println("super angle " + Float.toString(super.getAngle()));
+        
+        super.move(p);
+        
+        currentAngle += rotAngle;
+        if(currentAngle >= super.getAngle()){
+            //currentAngle = 0.0f;
+            super.setRotate(false);
+        }  
     }
     
     @Override
-    public void move(PApplet p){
-      if( px >= 0 && px <= p.width) 
-        px += dx;
-      if( py >= 0 && py <= p.height)
-        py += dy;
+    public void setTo(float x, float y){
+        super.setTo(x, y);
+        super.setRotate(true);
+        currentAngle = 0.0f;
+        
     }
     
     @Override 
     public void render(PApplet p){
-      p.pushMatrix();
-      p.translate(px, py);
-      p.rotate(angle);
-      p.image(ptrImage, 0, 0);
-      p.popMatrix();
+        // this needs to be set to center
+        p.pushMatrix();
+        p.imageMode(PApplet.CENTER);
+        p.translate(position.x, position.y);
+        p.rotate(super.getAngle());
+        p.image(ptrImage, 0, 0);
+        p.popMatrix();
     } 
 }
 

@@ -7,6 +7,10 @@ package sw;
 
 import processing.core.*;
 
+// TODO
+// load svg
+// load midi
+
 /**
  *
  * @author razvanjulianpetrescu
@@ -22,7 +26,7 @@ public class Sw extends PApplet {
  
     // player
     movable m;
-    float maxSpeed = 1000;
+    float maxSpeed = 10;
 
     // mouse
     float mx, my;
@@ -46,7 +50,7 @@ public class Sw extends PApplet {
     @Override 
     public void setup(){
       //m = new machine(5, maxSpeed);
-      m = new player(this, 1000, "rcket.png");
+      m = new player(this, 10, "rcket.png");
       sky = new PVector[maxStars];
       initSky();
     }
@@ -55,14 +59,16 @@ public class Sw extends PApplet {
     @Override 
     public void draw(){
       background(128);
-      sky();
+      sky(false);
       m.move(this);
       m.render(this);
       hud();
     }
 
     // paint the background
-    void sky(){
+    void sky(boolean fx){
+      if(fx == false)
+          return;
       pushStyle();
       noStroke();
         for (PVector sky1 : sky) {
@@ -80,7 +86,7 @@ public class Sw extends PApplet {
     void hud(){
       pushStyle();
       textSize(20); fill(0, 0, 255);
-      String tx = "Speed: " + Float.toString(maxSpeed - m.getSpeed());
+      String tx = "Speed: " + Float.toString(m.getSpeed());
       text(tx, 20, 20);
       popStyle();
     }
