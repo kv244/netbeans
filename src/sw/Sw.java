@@ -9,22 +9,6 @@ import java.io.File;
 import java.io.IOException;
 import processing.core.*;
 import javax.sound.midi.*;
-/*
-void setup() {
-  try {
-    File midiFile = new File(dataPath("whatever.mid"));
-    Sequencer sequencer = MidiSystem.getSequencer();
-    sequencer.open();
-    Sequence sequence = MidiSystem.getSequence(midiFile);
-    sequencer.setSequence(sequence);
-    sequencer.start();
-  } catch(Exception e) {}
-}
-*/
-
-// TODO
-// load svg
-// load midi
 
 /**
  *
@@ -39,6 +23,8 @@ public class Sw extends PApplet {
        PApplet.main(new String[]{sw.Sw.class.getName()});
     }
  
+    private boolean withSound = false;
+    
     // player
     private movable m;
     private final gameState gs = new gameState();
@@ -70,7 +56,8 @@ public class Sw extends PApplet {
       initSky();
       
       ptrIntro = loadShape("sw.svg");
-      midiFile = new File("sw.mid");
+      if(withSound)
+        midiFile = new File("sw.mid");
     }
 
     // main loop
@@ -105,14 +92,16 @@ public class Sw extends PApplet {
     // intro
     void renderIntro(){
         shape(ptrIntro, 0, 0, width, height);
-        try{
-            sequencer = MidiSystem.getSequencer();
-            sequencer.open();
-            Sequence sequence = MidiSystem.getSequence(midiFile);
-            sequencer.setSequence(sequence);
-            sequencer.start();
-        }catch(IOException | InvalidMidiDataException | MidiUnavailableException x){
-            System.out.println("Error playing sound: " + x.getMessage());
+        if(withSound){
+            try{
+                sequencer = MidiSystem.getSequencer();
+                sequencer.open();
+                Sequence sequence = MidiSystem.getSequence(midiFile);
+                sequencer.setSequence(sequence);
+                sequencer.start();
+            }catch(IOException | InvalidMidiDataException | MidiUnavailableException x){
+                System.out.println("Error playing sound: " + x.getMessage());
+            }
         }
     }
 
@@ -137,7 +126,7 @@ public class Sw extends PApplet {
     void hud(){
       pushStyle();
       textSize(20); fill(0, 0, 255);
-      String tx = "Speed: " + Float.toString(m.getSpeed());
+      String tx = "Speed: " + Float.toString(m.getSpeed()) + " out of: " + Float.toString(m.getMaxSpeed());
       text(tx, 20, 20);
       popStyle();
     }
@@ -165,9 +154,9 @@ public class Sw extends PApplet {
     @Override
     public void keyPressed(){
       if(key == 'a')
-        m.incSpeed(10);
+        m.incSpeed(m.getSpeedIncrease());
       if(key == 's')
-        m.decSpeed(10);
+        m.decSpeed(m.getSpeedIncrease());
     }
     
 }
