@@ -19,31 +19,50 @@ public abstract class movable{
     // some movables will need to rotate
     // some will accelerate/deccelerate when reaching target
     
-    private float mxSpeed;
+    private float maxSpeed;
+    private float intSpeed; // speed multiplier
     private PVector speed;
+    private final float speedIncrease = 0.5f;
+    
     // position
     protected PVector position;
     
     // destination
-    private PVector destination;
+    protected PVector destination;
     private float distance;
+    
     // orientation
     private float angle = 0.0f;
     
     // flags
     private boolean isMoving;
     private boolean isRotating;
+    
+    // rotation properties
+    protected float currentAngle = 0.0f;
+    protected final float rotAngle = (float)Math.PI / 10;
   
+    public void setPosition(PVector v){
+        position = new PVector(v.x, v.y);
+    }
+    
+    // ctor
     public movable(PApplet p, float maxSpeed){
-        mxSpeed = maxSpeed;
-        destination = new PVector(p.width/2, p.height/2);
-        position = new PVector(p.width / 2, p.height/2);
-        speed = new PVector(5, 5);
+        this.maxSpeed = maxSpeed;
         
-        distance = 0;
+        // move to descendent
+        speed = new PVector(5, 5); // initial speed
+        // TODO this needs to be moved
+        
+        distance = 0.0f;
         isMoving = false;
         isRotating = false;
-        speed.normalize();
+        speed.normalize(); // speed set to 1 by default
+        intSpeed = 1.0f;
+    }
+    
+    public float getMaxSpeed(){
+        return maxSpeed;
     }
 
     public float getAngle(){
@@ -53,9 +72,13 @@ public abstract class movable{
     public float getSpeed(){
         return speed.mag();
     }
-    
-    public void setSpeed(float s){
+    // internal update of speed vector to the updated scalar speed
+    private void setSpeed(float s){
         speed.setMag(s);
+    }
+    
+    public float getSpeedIncrease(){
+        return this.speedIncrease;
     }
     
     public void setMove(boolean m){
@@ -74,31 +97,60 @@ public abstract class movable{
         return isRotating;
     }
     
-    // TODO
-    public void decSpeed(float sp){}
-    public void incSpeed(float sp){}
+    // increases the multiplier
+    public void incSpeed(float sp){
+        intSpeed += ( intSpeed < this.maxSpeed ) ? sp : 0;
+        setSpeed(intSpeed);
+    }
+    public void decSpeed(float sp){
+        intSpeed -= ( intSpeed - sp > 0 ) ? sp : 0;
+        setSpeed(intSpeed);
+    }
+    
+    public void setTo(PVector v){
+        setTo(v.x, v.y);
+    }
   
-    // new heading set
+    // new heading set (response to click to determine new bearing)
     public void setTo(float x, float y){
         destination = new PVector(x, y);
         speed = PVector.sub(destination, position);
         speed.normalize();
+        setSpeed(intSpeed);
         angle = speed.heading();
-        /*
-        System.out.println("dest " + destination.toString());
-        System.out.println("post " + position.toString());
-        */
+        
+        setRotate(true); // if rotable TBD
+        currentAngle = 0.0f;
+        
     }
        
     // called every loop before rendering
+    // update location
     public void move(PApplet p){
+        //System.out.println("moved " + this.getClass().getName());
         distance = position.dist(destination);
-        isMoving = Math.abs(distance) > 1.0f;
+        isMoving = (Math.abs(distance) > 2.0f);  
+            // stop condition is hitting destination, so it will never go out
+            // for other movables, the condition may be different TBD
+            // TODO this however can be missed!
         
-        //System.out.println(distance);
         if(isMoving)
-            position.add(speed);
-        // TODO add shake?
+            position.add(speed); 
+    }
+    
+    // is it in screen
+    // handling of this is left to descendents
+    // optional parameter: vector, other than self, to determine 
+    // in screen property for
+    protected boolean inScreen(PApplet p, PVector ... which){
+        PVector v;
+        if(which.length == 0)
+            v = this.position;
+        else
+            v = (PVector)which[0];
+        
+        return v.x >= 0 && v.x <= p.width 
+                && v.y >= 0 && v.y <= p.height;
     }
     
     public abstract void render(PApplet p);

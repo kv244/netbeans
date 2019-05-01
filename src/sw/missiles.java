@@ -41,15 +41,4 @@ public class missiles extends movable {
     public int getMissile(){
         return currentMissile;
     }
-    
-    // TODO add collision
-    // TODO add move in player, compute move here
-    @Override 
-    public void move(PApplet p){
-        // System.out.println("Missile moved");
-        if(inScreen(p))
-            super.move(p);
-        else
-            isOut = true;
-    }
 }

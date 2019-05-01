@@ -3,10 +3,20 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
+
+
+// TODO
+// Move missiles to player? movable?
+// Calculate missiles setTo and hit condiiton
+// missiles speed
+// missiles rendering (line depending orientation)
+
 package sw;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Objects;
 import processing.core.*;
 import javax.sound.midi.*;
 
@@ -20,17 +30,24 @@ public class Sw extends PApplet {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-       PApplet.main(new String[]{sw.Sw.class.getName()});
+       PApplet.main(new String[]{
+           sw.Sw.class.getName()
+       });
     }
  
-    private boolean withSound = false;
+    // set to true to enable initial midi player
+    private final boolean withSound = false;
     
     // player
-    private movable m;
+    private player m;
     private final gameState gs = new gameState();
     private File midiFile = null;
     private Sequencer sequencer = null;
 
+    // missiles
+    // to move to player?
+    public ArrayList<missiles> missiles; // make private, render public
+    
     // mouse
     float mx, my;
 
@@ -52,6 +69,11 @@ public class Sw extends PApplet {
     public void setup(){
       
       m = new player(this, 10, "rcket.png");
+      m.setPosition(new PVector(width/2, height/2));
+      m.setTo(new PVector(width/2, height/2));
+      
+      missiles = new ArrayList<>();
+      
       sky = new PVector[maxStars];
       initSky();
       
@@ -63,7 +85,7 @@ public class Sw extends PApplet {
     // main loop
     @Override 
     public void draw(){
-      background(128);
+      background(255, 255, 255);
       
       switch(gs.getState()){
           case INIT:
@@ -71,9 +93,11 @@ public class Sw extends PApplet {
             break;
             
           case RUNNING:
-            sky(false);
+            sky(true);
             m.move(this);
             m.render(this);
+            moveMissiles(this);
+            renderMissiles(this);
             hud();
             break;
             
@@ -81,6 +105,34 @@ public class Sw extends PApplet {
               renderIntro();
               break;
       }          
+    }
+    
+    public void moveMissiles(PApplet p){
+        missiles.forEach((mm) -> {
+            mm.move(p);
+        });
+   
+    }
+    
+    // missile handlers, to move to player? TODO
+    public void renderMissiles(PApplet p){
+        this.missiles.forEach((mm) -> {
+            if(mm.gotOut())
+                mm = null;
+            else{
+                mm.render(p);
+            }
+        });
+        missiles.removeIf(Objects::isNull);
+    }
+    
+    public void addMissile(PApplet p){
+        missiles newMissile = new missiles(p, 5);
+        //newMissile.setPosition(new PVector((float)Math.random() * 50, (float)Math.random() * 50));
+        newMissile.setPosition(m.position);
+        newMissile.setTo(m.destination);
+        missiles.add(newMissile);
+        // System.out.println("Added missile " + position.toString());
     }
      
     // init sky
@@ -109,6 +161,7 @@ public class Sw extends PApplet {
     void sky(boolean fx){
       if(fx == false)
           return;
+      
       pushStyle();
       noStroke();
       for (PVector sky1 : sky) {
@@ -126,7 +179,7 @@ public class Sw extends PApplet {
     void hud(){
       pushStyle();
       textSize(20); fill(0, 0, 255);
-      String tx = "Speed: " + Float.toString(m.getSpeed()) + " out of: " + Float.toString(m.getMaxSpeed());
+      String tx = "Speed: " + Float.toString(m.getSpeed()) + " / " + Float.toString(m.getMaxSpeed());
       text(tx, 20, 20);
       popStyle();
     }
@@ -153,10 +206,33 @@ public class Sw extends PApplet {
     // keys
     @Override
     public void keyPressed(){
-      if(key == 'a')
-        m.incSpeed(m.getSpeedIncrease());
-      if(key == 's')
-        m.decSpeed(m.getSpeedIncrease());
-    }
-    
+        if(key == CODED && keyCode == ESC)
+            System.exit(0);
+        
+        if(gs.getState() == gameState.state.RUNNING){
+            if(key == 'a'){
+                m.incSpeed(m.getSpeedIncrease());
+            }
+            
+            if(key == 's')
+                m.decSpeed(m.getSpeedIncrease());
+            
+            if(key == ' '){
+                addMissile(this);
+            }    
+            
+            if(key == 'z'){
+                System.out.println(m.position);
+                missiles.stream().map((x) -> {
+                    System.out.print(x.getMissile());
+                    return x;
+                }).map((x) -> {
+                    System.out.print(" ");
+                    return x;
+                }).forEachOrdered((x) -> {
+                    System.out.println(x.position);
+                });
+            }
+        }
+    }   
 }

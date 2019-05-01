@@ -20,13 +20,12 @@ class player extends movable{
   // add flares
 
     private PImage ptrImage;
-    public ArrayList<missiles> missiles;
+    
 
     // ctor
     public player(PApplet p, float maxSpeed, String imgPath){
     
         super(p, maxSpeed);
-        missiles = new ArrayList<>();
 
         try{
           ptrImage = p.loadImage(imgPath);
@@ -57,27 +56,4 @@ class player extends movable{
         p.image(ptrImage, 0, 0);
         p.popMatrix();
     } 
-    
-    public void renderMissiles(PApplet p){
-        for(missiles mm: this.missiles){
-            if(mm.gotOut())
-                mm = null;
-            else{
-                mm.render(p);
-                //System.out.println("Rendering missile " + Integer.toString(mm.getMissile()));
-                p.fill(128); 
-                p.circle(mm.position.x, mm.position.y, 5);
-            }
-        }
-        missiles.removeIf(Objects::isNull);
-    }
-    
-    public void addMissile(PApplet p){
-        missiles newMissile = new missiles(p, 5);
-        newMissile.setPosition(position);
-        newMissile.setDestination(destination); // use setTo
-        missiles.add(newMissile);
-        // System.out.println("Added missile " + position.toString());
-    }
 }
-
