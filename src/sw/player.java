@@ -5,6 +5,8 @@
  */
 package sw;
 
+import java.util.ArrayList;
+import java.util.Objects;
 import processing.core.*;
 
 /**
@@ -16,31 +18,29 @@ class player extends movable{
   // TODO: 
   // make smoother rotation
   // add flares
-  // add max speed + speed control
 
-  private PImage ptrImage;
-  private float currentAngle = 0.0f;
-  private final float rotAngle = (float)Math.PI / 10;
-  
-  public player(PApplet p, float maxSpeed, String imgPath){
+    private PImage ptrImage;
+    public ArrayList<missiles> missiles;
+
+    // ctor
+    public player(PApplet p, float maxSpeed, String imgPath){
     
-    super(p, maxSpeed);
-    
-    try{
-        
-      ptrImage = p.loadImage(imgPath);
-    }catch(Exception x){
-      System.out.println("Error creating player: " + x.getMessage());
+        super(p, maxSpeed);
+        missiles = new ArrayList<>();
+
+        try{
+          ptrImage = p.loadImage(imgPath);
+        }catch(Exception x){
+          System.out.println("Error creating player: " + x.getMessage());
+        }
     }
-  }
   
-  // also set for movement
-  @Override
+    // also set for movement
+    @Override
     public void move(PApplet p){
-        //System.out.println("super angle " + Float.toString(super.getAngle()));
-        
-        super.move(p);
-        
+        if(inScreen(p) || inScreen(p, destination))
+            super.move(p);
+
         currentAngle += rotAngle;
         if(currentAngle >= super.getAngle()){
             //currentAngle = 0.0f;
@@ -48,17 +48,8 @@ class player extends movable{
         }  
     }
     
-    @Override
-    public void setTo(float x, float y){
-        super.setTo(x, y);
-        super.setRotate(true);
-        currentAngle = 0.0f;
-        
-    }
-    
     @Override 
     public void render(PApplet p){
-        // this needs to be set to center
         p.pushMatrix();
         p.imageMode(PApplet.CENTER);
         p.translate(position.x, position.y);
@@ -66,5 +57,27 @@ class player extends movable{
         p.image(ptrImage, 0, 0);
         p.popMatrix();
     } 
+    
+    public void renderMissiles(PApplet p){
+        for(missiles mm: this.missiles){
+            if(mm.gotOut())
+                mm = null;
+            else{
+                mm.render(p);
+                //System.out.println("Rendering missile " + Integer.toString(mm.getMissile()));
+                p.fill(128); 
+                p.circle(mm.position.x, mm.position.y, 5);
+            }
+        }
+        missiles.removeIf(Objects::isNull);
+    }
+    
+    public void addMissile(PApplet p){
+        missiles newMissile = new missiles(p, 5);
+        newMissile.setPosition(position);
+        newMissile.setDestination(destination); // use setTo
+        missiles.add(newMissile);
+        // System.out.println("Added missile " + position.toString());
+    }
 }
 
