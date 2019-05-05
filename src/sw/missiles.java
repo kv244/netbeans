@@ -18,6 +18,8 @@ public class missiles extends movable {
     private static int noMissiles = 0;
     private int currentMissile = 0;
     
+    
+    // TODO add move which sets isOut and hit?
     public boolean gotOut(){
         return isOut;
     }
