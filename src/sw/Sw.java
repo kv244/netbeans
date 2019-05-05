@@ -7,7 +7,7 @@
 
 // TODO
 // Move missiles to player? movable?
-// Calculate missiles setTo and hit condiiton
+// Calculate missiles setTo and hit condition; notification out of screen, hit
 // missiles speed
 // missiles rendering (line depending orientation)
 
@@ -107,6 +107,7 @@ public class Sw extends PApplet {
       }          
     }
     
+    // missile handlers, to move to player? TODO
     public void moveMissiles(PApplet p){
         missiles.forEach((mm) -> {
             mm.move(p);
@@ -114,7 +115,6 @@ public class Sw extends PApplet {
    
     }
     
-    // missile handlers, to move to player? TODO
     public void renderMissiles(PApplet p){
         this.missiles.forEach((mm) -> {
             if(mm.gotOut())
@@ -134,6 +134,7 @@ public class Sw extends PApplet {
         missiles.add(newMissile);
         // System.out.println("Added missile " + position.toString());
     }
+    // end missiles
      
     // init sky
     void initSky(){
