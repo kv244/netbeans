@@ -19,9 +19,9 @@ public abstract class movable{
     // some movables will need to rotate
     // some will accelerate/deccelerate when reaching target
     
-    private float maxSpeed;
+    private final float maxSpeed;
     private float intSpeed; // speed multiplier
-    private PVector speed;
+    protected PVector speed;
     private final float speedIncrease = 0.5f;
     
     // position
@@ -29,7 +29,7 @@ public abstract class movable{
     
     // destination
     protected PVector destination;
-    private float distance;
+    protected float distance;
     
     // orientation
     private float angle = 0.0f;
@@ -51,13 +51,13 @@ public abstract class movable{
         this.maxSpeed = maxSpeed;
         
         // move to descendent
-        speed = new PVector(5, 5); // initial speed
+        
         // TODO this needs to be moved
         
         distance = 0.0f;
         isMoving = false;
         isRotating = false;
-        speed.normalize(); // speed set to 1 by default
+        
         intSpeed = 1.0f;
     }
     
@@ -129,7 +129,7 @@ public abstract class movable{
     public void move(PApplet p){
         //System.out.println("moved " + this.getClass().getName());
         distance = position.dist(destination);
-        isMoving = (Math.abs(distance) > 2.0f);  
+        isMoving = hitCondition(); 
             // stop condition is hitting destination, so it will never go out
             // for other movables, the condition may be different TBD
             // TODO this however can be missed!
@@ -137,6 +137,15 @@ public abstract class movable{
         if(isMoving)
             position.add(speed); 
     }
+    
+    /**
+     * Determine if a hit is recorded
+     * Has to be overridden by each subclass
+     * For player, when distance is hit
+     * For missile, when hit target?
+     * @return true while NOT hit
+    */
+    public abstract boolean hitCondition();
     
     // is it in screen
     // handling of this is left to descendents

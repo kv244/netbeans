@@ -6,17 +6,16 @@
 
 
 // TODO
-// Move missiles to player? movable?
-// Calculate missiles setTo and hit condition; notification out of screen, hit
-// missiles speed
-// missiles rendering (line depending orientation)
+//  Move missiles to player? movable?
+//  Calculate missiles setTo and hit condition; notification out of screen, hit
+//  Missiles speed
+//  Missiles rendering (line depending orientation)
 
 package sw;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Objects;
 import processing.core.*;
 import javax.sound.midi.*;
 
@@ -115,24 +114,26 @@ public class Sw extends PApplet {
    
     }
     
+    
+    // renders missiles and removes if they are out of screen
     public void renderMissiles(PApplet p){
+        ArrayList<missiles> copyMissiles = new ArrayList(this.missiles);
         this.missiles.forEach((mm) -> {
+            mm.render(p);
+        
             if(mm.gotOut())
-                mm = null;
-            else{
-                mm.render(p);
-            }
+                copyMissiles.remove(mm);
         });
-        missiles.removeIf(Objects::isNull);
+        
+        this.missiles = copyMissiles;
+        
     }
     
     public void addMissile(PApplet p){
         missiles newMissile = new missiles(p, 5);
-        //newMissile.setPosition(new PVector((float)Math.random() * 50, (float)Math.random() * 50));
         newMissile.setPosition(m.position);
         newMissile.setTo(m.destination);
         missiles.add(newMissile);
-        // System.out.println("Added missile " + position.toString());
     }
     // end missiles
      
@@ -222,6 +223,7 @@ public class Sw extends PApplet {
                 addMissile(this);
             }    
             
+            // debug
             if(key == 'z'){
                 System.out.println(m.position);
                 missiles.stream().map((x) -> {

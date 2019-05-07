@@ -5,8 +5,6 @@
  */
 package sw;
 
-import java.util.ArrayList;
-import java.util.Objects;
 import processing.core.*;
 
 /**
@@ -24,9 +22,12 @@ class player extends movable{
 
     // ctor
     public player(PApplet p, float maxSpeed, String imgPath){
-    
+        
         super(p, maxSpeed);
-
+        
+        speed = new PVector(5, 5); // initial speed
+        speed.normalize(); // speed set to 1 by default
+        
         try{
           ptrImage = p.loadImage(imgPath);
         }catch(Exception x){
@@ -56,4 +57,9 @@ class player extends movable{
         p.image(ptrImage, 0, 0);
         p.popMatrix();
     } 
+    
+    @Override
+    public boolean hitCondition(){
+        return (Math.abs(distance) > 2.0f);  
+    }
 }

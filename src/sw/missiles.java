@@ -14,12 +14,10 @@ import processing.core.*;
  */
 public class missiles extends movable {
     
-    private boolean isOut = false;
+    private boolean isOut = false; // out of screen notifier
     private static int noMissiles = 0;
     private int currentMissile = 0;
-    
-    
-    // TODO add move which sets isOut and hit?
+   
     public boolean gotOut(){
         return isOut;
     }
@@ -27,20 +25,35 @@ public class missiles extends movable {
     // ctor
     public missiles(PApplet p, float maxSpeed){
         super(p, maxSpeed);
+        speed = new PVector(7, 7); // initial speed
+        speed.normalize(); // speed set to 1 by default
+        
         currentMissile = noMissiles++;
+    }
+    
+    @Override
+    public void move(PApplet p){
+        super.move(p);
+        if(inScreen(p) == false)
+            isOut = true;
     }
 
     @Override
     public void render(PApplet p) {
-        // System.out.println("Missile rendered " + position.toString());
+        
         p.pushStyle();
-        p.noStroke();
+        p.stroke(3);
         p.fill(128, 0, 0);
-        p.circle(position.x, position.y, currentMissile * 2);
+        p.line(position.x, position.y, position.x + speed.x * 2, position.y + speed.y * 2);
         p.popStyle();
     }
     
     public int getMissile(){
         return currentMissile;
+    }
+    
+    @Override 
+    public boolean hitCondition(){
+        return true;
     }
 }
